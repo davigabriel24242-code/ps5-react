@@ -82,12 +82,13 @@ def main():
                 DEPS / "compiler-rt-18.deb", BUILTINS_HASH)
     builtins = DEPS / "libclang_rt.builtins-x86_64.a"
     if not builtins.exists():
-        entries = subprocess.check_output(["ar", "t", str(deb)], text=True).splitlines()
-        name = next(x for x in entries if x.startswith("data.tar"))
-        data = subprocess.check_output(["ar", "p", str(deb), name])
-        with tarfile.open(fileobj=io.BytesIO(data)) as package:
-            member = next(m for m in package.getmembers() if m.name.endswith("/libclang_rt.builtins-x86_64.a"))
-            builtins.write_bytes(package.extractfile(member).read())
+                extract = DEPS / "compiler-rt-extract"
+        if extract.exists():
+            shutil.rmtree(extract)
+        extract.mkdir(parents=True, exist_ok=True)
+        subprocess.check_call(["dpkg-deb", "-x", str(deb), str(extract)])
+        builtins_file = next(extract.rglob("libclang_rt.builtins-x86_64.a"))
+        builtins.write_bytes(builtins_file.read_bytes())
 
     _, config, generated = bundle(app_dir, er)
     TITLE = config["titleId"]
