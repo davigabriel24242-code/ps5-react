@@ -82,7 +82,7 @@ def main():
                 DEPS / "compiler-rt-18.deb", BUILTINS_HASH)
     builtins = DEPS / "libclang_rt.builtins-x86_64.a"
     if not builtins.exists():
-                extract = DEPS / "compiler-rt-extract"
+        extract = DEPS / "compiler-rt-extract"
         if extract.exists():
             shutil.rmtree(extract)
         extract.mkdir(parents=True, exist_ok=True)
